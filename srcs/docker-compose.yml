@@ -1,0 +1,66 @@
+version: "3.8"
+# compose format file version
+
+volumes:
+  database:
+    name: DB
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/shadria-/data/DataBase
+      o: bind
+
+  wp_volume:
+    name: WordPress
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/shadria-/data/WordPress
+      o: bind
+
+networks:
+  mynetwork:
+    name: mynetwork
+
+services:
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx/
+    image: nginx:inception
+    volumes:
+      - wp_volume:/var/www/html
+    depends_on:
+      - wordpress
+    env_file:
+      - .env
+    ports:
+      - 443:443
+    networks:
+      - mynetwork
+    restart: always
+
+  wordpress:
+    container_name: wordpress
+    build: ./requirements/wordpress/
+    image: wordpress:inception
+    volumes:
+      - wp_volume:/var/www/html
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+    networks:
+      - mynetwork
+    restart: always
+
+  mariadb:
+    container_name: mariadb
+    build: ./requirements/mariadb/
+    image: mariadb:inception
+    volumes:
+      - database:/var/lib/mysql
+    env_file:
+      - .env
+    networks:
+      - mynetwork
+    restart: always

@@ -1,0 +1,10 @@
+FROM  debian:bullseye
+
+RUN apt update -y && apt upgrade -y && apt -y install mariadb-server && apt -y install mariadb-client && apt clean
+
+COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+
+COPY    ./tools/setup2.sh .
+RUN     chmod +x setup2.sh
+
+CMD ["./setup2.sh"]
